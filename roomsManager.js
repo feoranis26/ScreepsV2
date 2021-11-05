@@ -43,19 +43,19 @@ module.exports = {
             this.processOwn(n)
             this.updateClaimRoom()
         }
-        
+
     },
     processOwn: function (n) {
         if (Game.time % 5 == 0) {
-            if (Game.rooms[n].find(FIND_HOSTILE_CREEPS).length >= 2) {
+            if (!Memory.rooms[n].critical && Game.rooms[n].find(FIND_HOSTILE_CREEPS).length >= 2) {
                 Memory.rooms[n].critical = true
                 Game.notify("Room critical! Time:" + Game.time + ", Room: " + n)
 
-                if(!sqdManager.isAssembling(Game.rooms[n])){
+                if (!sqdManager.isAssembling(Game.rooms[n])) {
                     //sqdManager.assembleSquad(2, 0, "DEFEND", Game.rooms[n])
                 }
             }
-            else {
+            else if (Memory.rooms[n].critical) {
                 Memory.rooms[n].critical = false
             }
         }
@@ -66,12 +66,12 @@ module.exports = {
         roomVisualizer.visualizeOwn(Game.rooms[n])
         strManager.tick(Game.rooms[n])
         creepActions.room(Game.rooms[n])
-        
+
 
         if (Memory.rooms[n].ldsEnabled && Game.time % 20 < 3) {
             for (let i in Memory.actions.ldsDangerous) {
                 if (!Game.rooms[i]) {
-                    let observers = Game.rooms[n].find(FIND_MY_STRUCTURES, {filter:(s)=>s.structureType == STRUCTURE_OBSERVER})
+                    let observers = Game.rooms[n].find(FIND_MY_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_OBSERVER })
                     if (observers.length >= 1) {
                         observers[0].observeRoom(i)
                     }
@@ -84,7 +84,7 @@ module.exports = {
                 }
             }
         }
-    sqdManager.checkRoom(Game.rooms[n])
+        sqdManager.checkRoom(Game.rooms[n])
     },
     updateClaimRoom: function () {
         if (Game.rooms[Memory.claimRoom]) {
