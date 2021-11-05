@@ -25,7 +25,7 @@ module.exports = {
     name: "creepsManager",
     isRoomDead: false,
     nextUp: {},
-    codeInitialized : false,
+    codeInitialized: false,
     room: function (roomd) {
         this.spawn(roomd)
         for (let jobn in this.jobs) {
@@ -41,7 +41,7 @@ module.exports = {
             this.codeInitialized = true
             Memory.globalResets++
         }
-        if (this.jobs.length == 0 ){//|| Game.time % 10 == 0) {
+        if (this.jobs.length == 0) {//|| Game.time % 10 == 0) {
             console.log("No jobs!")
             this.generateJobs();
         }
@@ -51,7 +51,7 @@ module.exports = {
         for (let i in Game.creeps) {
             this.runPost(Game.creeps[i]);
         }
-        if (Game.time % 5 != 0) { return;}
+        if (Game.time % 5 != 0) { return; }
         for (let i in Memory.creeps) {
             let c = Game.creeps[i]
             if (c == undefined) {
@@ -75,27 +75,18 @@ module.exports = {
             for (let s in spawns) {
                 spawn = spawns[s]
                 this.visualize(spawn);
-                if (spawn.spawning) {
-                    spawn = spawns[0]
-                    continue
+                if (!spawn.spawning) {
+                    break
                 }
             }
         }
         else {
             console.log("Spawn cache is invalid for room: " + roomd);
-            Memory.rooms[roomd].spawns = []
-            let spawnsr = room.find(FIND_MY_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_SPAWN })
-            for (let i in spawnsr) {
-                Memory.rooms[roomd].spawns.push(spawnsr[i].id)
-            }
+            refreshSpawns(roomd);
         }
         if (Game.time % 500 == 0) {
             console.log("Spawn cache is being refreshed for room: " + roomd);
-            Memory.rooms[roomd].spawns = []
-            let spawnsr = room.find(FIND_MY_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_SPAWN })
-            for (let i in spawnsr) {
-                Memory.rooms[roomd].spawns.push(spawnsr[i].id)
-            }
+            refreshSpawns(roomd);
         }
         if (Game.time % 10 != 0) { return }
         //console.log(spawn)
@@ -105,21 +96,17 @@ module.exports = {
                 console.log("No jobs!")
                 this.generateJobs();
             }
-            //if (room.energyAvailable >= Memory.rooms[roomd].energyReq) {
             for (let spawnerNum in this.jobs) {
                 let spawner = this.jobs[spawnerNum]
                 if (spawner.spawn(room, spawn)) {
                     continue;
                 }
                 if (this.nextUp[roomd] != spawner.name) {
-                    //console.log("In Queue: " + spawner.name + "for room "+ roomd)
                     this.nextUp[roomd] = spawner.name
-                    //console.log(this.nextUp[roomd])
                     nextup = this.nextUp[roomd]
                 }
                 break;
             }
-            //}
             this.isRoomDead = false;
         }
         else if (!this.isRoomDead) {
@@ -145,6 +132,13 @@ module.exports = {
                     Game.notify("Exception info: " + e + "  ##  " + e.stack + "\nCreep info :\nName : " + creep.name + "\nRoom : " + creep.room.name);
                 }
             }
+        }
+    },
+    refreshSpawns: function (roomd) {
+        Memory.rooms[roomd].spawns = []
+        let spawnsr = room.find(FIND_MY_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_SPAWN })
+        for (let i in spawnsr) {
+            Memory.rooms[roomd].spawns.push(spawnsr[i].id)
         }
     },
     runPost: function (creep) {
