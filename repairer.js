@@ -2,8 +2,8 @@ let actions = require("creepActions")
 module.exports = {
     name: "repairer"
     ,
-    spawn: function (room, spawn) {
-        let num = _.sum(Game.creeps, (c) => c.memory.role == "repairer" && c.room.name == room.name);
+    spawn: function (room, spawn, num) {
+        //let num = _.sum(Game.creeps, (c) => c.memory.role == "repairer" && c.room.name == room.name);
         let numSources = 1;
         if (num < numSources && room.energyAvailable >= Memory.rooms[room.name].energyReq) {
             if (spawn.spawnCreep(require("spawning").getSpawnCreepBody(room.energyAvailable), require("spawning").getName(room, "RE"), { memory: { role: "repairer", target : room.name} }) == 0) {

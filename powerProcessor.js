@@ -4,8 +4,8 @@ module.exports = {
     suffix: "PW",
     amount: 1
     ,
-    spawn: function (room, spawn) {
-        let num = _.sum(Game.creeps, (c) => c.memory.role == this.name && c.room.name == room.name && !c.memory.deactivated);
+    spawn: function (room, spawn, num) {
+        //let num = _.sum(Game.creeps, (c) => c.memory.role == this.name && c.room.name == room.name && !c.memory.deactivated);
         let term = room.find(FIND_MY_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_TERMINAL })[0]
         if (!term) {
             return true

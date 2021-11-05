@@ -4,8 +4,8 @@ module.exports = {
     suffix: "LH",
     amount: 6
     ,
-    spawn: function (room, spawn) {
-        let num = _.sum(Game.creeps, (c) => c.memory.role == this.name && c.memory.home == room.name);
+    spawn: function (room, spawn, num) {
+        //let num = _.sum(Game.creeps, (c) => c.memory.role == this.name && c.memory.home == room.name);
         let numSources = this.amount * Memory.rooms[room.name].ldsEnabled;
         if (num < numSources && room.energyAvailable >= Memory.rooms[room.name].energyReq) {
             if (spawn.spawnCreep(spawning.getLongHarvesterBody(room.energyAvailable), spawning.getName(room, this.suffix), { memory: { role: this.name, home: room.name, trips: 0 } }) == 0) {

@@ -1,8 +1,8 @@
 module.exports = {
     name: "miner"
     ,
-    spawn: function (room, spawn) {
-        let num = _.sum(Game.creeps, (c) => c.memory.role == "miner" && c.room.name == room.name);
+    spawn: function (room, spawn, num) {
+        //let num = _.sum(Game.creeps, (c) => c.memory.role == "miner" && c.room.name == room.name);
         let numSources = (room.controller.level >= 6 && room.find(FIND_MY_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_TERMINAL }).length > 0) * 1;
         if (num < numSources && room.energyAvailable >= Memory.rooms[room.name].energyReq &&  Memory.rooms[room.name].termFull != true) {
             if (spawn.spawnCreep(require("spawning").getSpawnCreepBody(room.energyAvailable), require("spawning").getName(room, "MN"), { memory: { role: "miner", target : room.name} }) == 0) {

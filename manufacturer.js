@@ -4,8 +4,8 @@ module.exports = {
     suffix: "MF",
     amount: 1
     ,
-    spawn: function (room, spawn) {
-        let num = _.sum(Game.creeps, (c) => c.memory.role == this.name && c.room.name == room.name && !c.memory.deactivated);
+    spawn: function (room, spawn, num) {
+        //let num = _.sum(Game.creeps, (c) => c.memory.role == this.name && c.room.name == room.name && !c.memory.deactivated);
         let numSources = this.amount * (Memory.rooms[room.name].recipe != undefined);
         if (num < numSources && room.energyAvailable >= Memory.rooms[room.name].energyReq || (Memory.rooms[room.name].critical && num < 3)) {
             if (spawn.spawnCreep(require("spawning").getSpawnCreepBody(room.energyAvailable), require("spawning").getName(room, this.suffix), { memory: { role: this.name, target: room.name } }) == 0) {

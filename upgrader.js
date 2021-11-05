@@ -2,8 +2,8 @@ let actions = require("creepActions")
 module.exports = {
     name: "upgrader"
     ,
-    spawn: function (room, spawn) {
-        let num = _.sum(Game.creeps, (c) => c.memory.role == "upgrader" && c.room.name == room.name);
+    spawn: function (room, spawn, num) {
+        //let num = _.sum(Game.creeps, (c) => c.memory.role == "upgrader" && c.room.name == room.name);
         let numSources = 1;
         let maxEnergy = room.energyCapacityAvailable / 1.5;
         let energyReq = room.energyCapacityAvailable / 1.75;

@@ -27,7 +27,7 @@ module.exports = {
     nextUp: {},
     codeInitialized: false,
     room: function (roomd) {
-        this.spawn(roomd)
+        this.spawnRoom(roomd);
         for (let jobn in this.jobs) {
             let job = this.jobs[jobn]
             if (job.runRoom) {
@@ -45,52 +45,84 @@ module.exports = {
             console.log("No jobs!")
             this.generateJobs();
         }
+
         for (let i in Game.creeps) {
             this.run(Game.creeps[i]);
         }
         for (let i in Game.creeps) {
             this.runPost(Game.creeps[i]);
         }
-        if (Game.time % 5 != 0) { return; }
-        for (let i in Memory.creeps) {
-            let c = Game.creeps[i]
-            if (c == undefined) {
-                delete Memory.creeps[i];
+
+        if (Game.time % 5 == 0) {
+            for (let i in Memory.creeps) {
+                let c = Game.creeps[i]
+                if (c == undefined) {
+                    delete Memory.creeps[i];
+                }
             }
         }
     },
-    spawn: function (roomd) {
-        //Cache role numbers for all roles so we don't calculate them for every job, this would save a lot of CPU
+    spawnRoom(roomd) {
         let room = Game.rooms[roomd];
         let spawnst = Memory.rooms[roomd].spawns
         let spawns = []
         for (let i in spawnst) {
             let spawn = Game.getObjectById(spawnst[i])
+            this.visualize(spawn);
             if (spawn) {
                 spawns.push(spawn)
             }
         }
-        let spawn;
-        if (spawns.length > 0) {
-            for (let s in spawns) {
-                spawn = spawns[s]
-                this.visualize(spawn);
-                if (!spawn.spawning) {
-                    break
+
+        if (Game.time % 5 == 0) {
+            let roomData = {
+                name: roomd,
+                roleNumbers: {
+
                 }
             }
+
+            let creeps = Game.rooms[roomd].find(FIND_MY_CREEPS)
+
+            for (let creepNum in creeps) {
+                let creep = creeps[creepNum];
+                if (creep.memory && creep.memory.role && this.jobsData[creep.memory.role] != undefined) {
+                    if (roomData.roleNumbers[creep.memory.role])
+                        roomData.roleNumbers[creep.memory.role]++;
+                    else
+                        roomData.roleNumbers[creep.memory.role] = 1;
+                }
+            }
+
+
+
+            let spawn;
+            if (spawns.length > 0) {
+                for (let s in spawns) {
+                    spawn = spawns[s]
+                    if (!spawn.spawning) {
+                        break
+                    }
+                }
+            }
+            else {
+                console.log("Spawn cache is invalid for room: " + roomd);
+                this.refreshSpawns(roomd);
+            }
+            if (Game.time % 500 == 0) {
+                console.log("Spawn cache is being refreshed for room: " + roomd);
+                this.refreshSpawns(roomd);
+            }
+
+
+            this.spawn(roomData, spawn)
         }
-        else {
-            console.log("Spawn cache is invalid for room: " + roomd);
-            refreshSpawns(roomd);
-        }
-        if (Game.time % 500 == 0) {
-            console.log("Spawn cache is being refreshed for room: " + roomd);
-            refreshSpawns(roomd);
-        }
-        if (Game.time % 10 != 0) { return }
-        //console.log(spawn)
-        let roomType = "small"
+    },
+    spawn: function (roomData, spawn) {
+        //Cache role numbers for all roles so we don't calculate them for every job, this would save a lot of CPU
+
+        let roomd = roomData.name
+        let room = Game.rooms[roomd];
         if (room.find(FIND_MY_CREEPS)[0]) {
             if (this.jobs.length == 0) {
                 console.log("No jobs!")
@@ -98,9 +130,13 @@ module.exports = {
             }
             for (let spawnerNum in this.jobs) {
                 let spawner = this.jobs[spawnerNum]
-                if (spawner.spawn(room, spawn)) {
+
+
+                if (spawner.spawn(room, spawn, roomData.roleNumbers[spawner.name])) {
                     continue;
                 }
+
+
                 if (this.nextUp[roomd] != spawner.name) {
                     this.nextUp[roomd] = spawner.name
                     nextup = this.nextUp[roomd]
@@ -174,8 +210,14 @@ module.exports = {
         //this.jobs.push(mnrl);
         this.jobs.push(pwrh);
         this.jobs.push(dest);
+
+        for (let jobNum in this.jobs) {
+            let job = this.jobs[jobNum];
+            this.jobsData[job.name] = job;
+        }
     },
     jobs: [],
+    jobsData: {},
     visualize: function (spawn) {
         let pos = spawn.pos;
         let vis = spawn.room.visual;

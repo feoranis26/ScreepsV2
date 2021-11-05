@@ -2,11 +2,11 @@ let spawning = require("spawning")
 module.exports = {
     name: "reserver"
     ,
-    spawn: function (room, spawn) {
+    spawn: function (room, spawn, num) {
         if (!Memory.rooms[room.name].reservation) {
             return true;
         }
-        let num = _.sum(Game.creeps, (c) => c.memory.role == "reserver")// && c.room.name == Memory.claimRoom && !c.memory.deactivated);
+        //let num = _.sum(Game.creeps, (c) => c.memory.role == "reserver")// && c.room.name == Memory.claimRoom && !c.memory.deactivated);
         let numSources = Memory.rooms[room.name].reservation.length;
         if (num < numSources) {
             spawn.spawnCreep([CLAIM, MOVE], this.hash((Math.floor(Math.random() * 10000).toString())) + "_RS", { memory: { role: "reserver", home: room.name } })

@@ -2,8 +2,8 @@ let actions = require("creepActions")
 module.exports = {
     name: "pwrh"
     ,
-    spawn: function (room, spawn) {
-        let num = _.sum(Game.creeps, (c) => c.memory.role == this.name && c.room.name == room.name && !c.memory.deactivated);
+    spawn: function (room, spawn, num) {
+        //let num = _.sum(Game.creeps, (c) => c.memory.role == this.name && c.room.name == room.name && !c.memory.deactivated);
         let numSources = 3 * Memory.actions.powerHarvesting.active;
         if (num < numSources && room.energyAvailable >= Memory.rooms[room.name].energyReq) {
             if (spawn.spawnCreep(spawning.getAttackBody(room), this.hash((Math.floor(Math.random() * 10000).toString())) + "_PW", { memory: { role: this.name, target: room.name } }) == 0) {

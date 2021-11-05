@@ -3,10 +3,10 @@ let cfx = require("creepActions")
 module.exports = {
     name: "melee"
     ,
-    spawn: function (room, spawn) {
-        if (!Memory.rooms[room.name].squad) return true
+    spawn: function (room, spawn, num) {
+        if (!Memory.rooms[room.name].squad || Memory.rooms[room.name].squad.targetMelee == 0) return true
 
-        let num = _.sum(Game.creeps, (c) => c.memory.role == "melee" && c.room.name == room.name);
+        //let num = _.sum(Game.creeps, (c) => c.memory.role == "melee" && c.room.name == room.name);
         let numSources = Memory.rooms[room.name].squad.targetMelee;
 
         let energyReq = Memory.rooms[room.name].energyReq * 3
