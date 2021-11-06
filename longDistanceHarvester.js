@@ -2,12 +2,12 @@ let spawning = require("spawning");
 module.exports = {
     name: "longharvester",
     suffix: "LH",
-    amount: 6
+    amount: 4
     ,
-    spawn: function (room, spawn, num) {
-        //let num = _.sum(Game.creeps, (c) => c.memory.role == this.name && c.memory.home == room.name);
+    spawn: function (room, spawn) {
+        let num = _.sum(Game.creeps, (c) => c.memory.role == this.name && c.memory.home == room.name);
         let numSources = this.amount * Memory.rooms[room.name].ldsEnabled;
-        if (num < numSources && room.energyAvailable >= Memory.rooms[room.name].energyReq) {
+        if (num < numSources && room.energyAvailable >= Memory.rooms[room.name].energyReq * 3) {
             if (spawn.spawnCreep(spawning.getLongHarvesterBody(room.energyAvailable), spawning.getName(room, this.suffix), { memory: { role: this.name, home: room.name, trips: 0 } }) == 0) {
                 return false
             }
@@ -18,10 +18,6 @@ module.exports = {
         return true
     },
     run: function (creep) {
-        if (Game.cpu.bucket < 100) {
-            return;
-        }
-
         if (!Memory.rooms[creep.memory.home].ldsEnabled) {
             creep.suicide()
         }
@@ -139,7 +135,7 @@ module.exports = {
                         Memory.actions.lds[room].splice(j, 1);
                     }
                 }
-                if (usedRooms[room].length < 5) {
+                if (usedRooms[room].length < 3) {
                     creep.memory.target = room
                     if (!usedRooms[room].includes(creep.id)) {
                         usedRooms[room].push(creep.id)
@@ -194,13 +190,15 @@ module.exports = {
         }
     },
     getMaintainer: function (srcRoom) {
-        if (!Memory.rooms[srcRoom.name] || !Memory.rooms[srcRoom.name].ldsEnabled) { return; }
+        if (!srcRoom || !Memory.rooms[srcRoom.name] || !Memory.rooms[srcRoom.name].ldsEnabled) { return; }
         for (let ldsRN in Memory.rooms[srcRoom.name].lds) {
             let room = Game.rooms[Memory.rooms[srcRoom.name].lds[ldsRN]]
+            if (!room)
+                continue;
             if (Game.time % 25 != 0 || Memory.actions.lds[room.name] == undefined) { return; }
             let maintainer = Game.getObjectById(Memory.actions.ldsMaintain[room.name])
             if (!maintainer || maintainer == null) {
-                console.log("No maintainer for room: " + room.name)
+                console.log("[Role] \"" + this.name + "\" : No maintainer for room: " + room.name)
                 let creepsInRoom = room.find(FIND_MY_CREEPS, {
                     filter: (c) => {
                         return c.memory.role == "longharvester"/* && c.carry.energy == c.carryCapacity*/ && c.room.name == room.name
@@ -215,7 +213,8 @@ module.exports = {
                         return c.memory.role == "longharvester" && c.carry.energy == c.carryCapacity && c.room.name == room.name
                     }
                 })
-                Memory.actions.ldsMaintain[room.name] = creepsInRoom[0].id
+                if (creepsInRoom.length > 0)
+                    Memory.actions.ldsMaintain[room.name] = creepsInRoom[0].id
             }
         }
     },
@@ -279,7 +278,7 @@ module.exports = {
     },
     findSource: function (creep) {
         if (creep.memory.source && Game.getObjectById(creep.memory.source) && Game.getObjectById(creep.memory.source).room.name == creep.memory.target) { return }
-        let source = creep.pos.findClosestByPath(FIND_SOURCES)
+        let source = creep.pos.findClosestByPath(FIND_SOURCES, { filter: (s) => s.energy > 0 })
         if (source) {
             creep.memory.source = source.id
         }
@@ -304,10 +303,31 @@ module.exports = {
             v.circle(rp(25, 25, hr), { radius: 12, strokeWidth: 0, fill: "#c9f02e" })
         }
     },
+    observe: function (room) {
+        let n = room.name;
+        if (Memory.rooms[n].ldsEnabled) {
+            for (let i in Memory.actions.ldsDangerous && Game.time % 20 < 3) {
+                if (!Game.rooms[i]) {
+                    let observers = Game.rooms[n].find(FIND_MY_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_OBSERVER })
+                    if (observers.length >= 1) {
+                        observers[0].observeRoom(i)
+                        console.log("observing" + i)
+                    }
+                }
+                else {
+                    let hostiles = Game.rooms[i].find(FIND_HOSTILE_CREEPS, { filter: (c) => c.room.name == i });
+                    if (hostiles.length == 0) {
+                        Memory.actions.ldsDangerous[i] = false;
+                    }
+                }
+            }
+        }
+    },
     runRoom: function (room) {
         this.checkAssigns(room);
         this.getMaintainer(room);
         this.visualizeMap(room)
+        this.observe(room);
     }
 };
 

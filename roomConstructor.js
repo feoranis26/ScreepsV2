@@ -47,7 +47,7 @@ module.exports = {
             }
             else {
                 if (Game.rooms[roomName].find(FIND_CONSTRUCTION_SITES, { filter: (s) => s.structureType == STRUCTURE_SPAWN }).length == 0) {
-                    console.log("No spawn found in room :" + roomName + ", creating new spawn.")
+                    console.log("[RoomConstructor] No spawn found in room :" + roomName + ", creating new spawn.")
                     if (!Memory.rooms[roomName].spawnPos) {
                         this.findMostOpenSource(Game.rooms[roomName])
                         this.findSpawnPoint(Game.rooms[roomName])
@@ -143,7 +143,7 @@ module.exports = {
         Memory.rooms[room.name].spawnSource = mostFree.id
     },
     findSpawnPoint: function (room) {
-        console.log("Calculating spawn point for room :" + room.name)
+        console.log("[RoomConstructor] Calculating spawn point for room :" + room.name)
         let clearAreaNeeded = this.clearAreaNeeded - 2
         let source = Game.getObjectById(Memory.rooms[room.name].spawnSource)
         let positions = []

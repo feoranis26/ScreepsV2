@@ -37,8 +37,8 @@ module.exports = {
         }
     },
     getCarrierBody: function (energy) {
-        if (energy > 800) {
-            energy = 800
+        if (energy > 1600) {
+            energy = 1600
         }
         if (energy >= 200) {
             let numparts = Math.floor(energy / 150)
@@ -117,17 +117,17 @@ module.exports = {
     },
     getLongHarvesterBody: function (energy, maxEnergy) {
         if (!maxEnergy) {
-            maxEnergy = 800
+            maxEnergy = 2400
         }
         if (energy > maxEnergy) {
             energy = maxEnergy
         }
-        let numparts = Math.floor(energy / 400)
+        let numparts = Math.floor(energy / 500)
         let body = [];
-        for (let i = 0; i < numparts; i++) {
+        for (let i = 0; i < numparts * 2; i++) {
             body.push(WORK);
         }
-        for (let i = 0; i < numparts * 3; i++) {
+        for (let i = 0; i < numparts * 2; i++) {
             body.push(CARRY);
         }
         for (let i = 0; i < numparts * 3; i++) {

@@ -10,10 +10,10 @@ module.exports = {
         if (Memory.rooms[room.name].energySources > 1 && room.energyCapacityAvailable > 4000) {
             maxEnergy = 2400
             if (room.controller.level >= 6) {
-                maxEnergy = room.energyCapacityAvailable / 1.25
+                maxEnergy = room.energyCapacityAvailable / 1
             }
-            energyReq = room.energyCapacityAvailable / 1.5;
-            numSources = 2;
+            energyReq = room.energyCapacityAvailable / 1.25;
+            numSources = 1;
         }
         if (maxEnergy > 2400) {
             maxEnergy = 2400;

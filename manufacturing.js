@@ -82,7 +82,7 @@ module.exports = {
             if (!Memory.rooms[room.name].recipe) {
                 Memory.rooms[room.name].recipe = this.findRecipe(room.name);
                 if (Memory.rooms[room.name].recipe) {
-                    console.log("Giving room " + room.name + " recipe to make " + Memory.rooms[room.name].recipe.out + ".")
+                    console.log("[Manufacturing] Giving room " + room.name + " recipe to make " + Memory.rooms[room.name].recipe.out + ".")
                 }
             }
         }

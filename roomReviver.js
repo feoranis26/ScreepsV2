@@ -3,7 +3,7 @@ module.exports = {
     ,
     spawn: function (room, spawn, roomType) {
         if (roomType == "dead") {
-            spawn.spawnCreep(require("spawning").getSpawnCreepBody(room.energyAvailable), require("spawning").getName(room, "RO"), { memory: { role: "roomrev", target: room.name } })
+            console.log(spawn.spawnCreep(require("spawning").getSpawnCreepBody(room.energyAvailable), require("spawning").getName(room, "RO"), { memory: { role: "roomrev", target: room.name } }))
             return false
         }
         else {

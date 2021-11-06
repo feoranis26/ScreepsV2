@@ -110,7 +110,7 @@ module.exports = {
             else if (trans == 0) {
                 creep.memory.takeout = false
                 if (!manufacturing.checkRecipe(creep.room.name)) {
-                    console.log("Room " + creep.room.name + " finished recipe to make " + recipe.out + ".")
+                    console.log("[Creep] <" + creep.name + ">("+ this.name + "): Room " + creep.room.name + " finished recipe to make " + recipe.out + ".")
                     Memory.rooms[creep.room.name].recipe = undefined
                 }
                 else if(factory.store[recipe.out] == 0)

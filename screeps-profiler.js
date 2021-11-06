@@ -171,8 +171,8 @@ function profileObjectFunctions(object, label) {
 function profileFunction(fn, functionName) {
   const fnName = functionName || fn.name;
   if (!fnName) {
-    console.log('Couldn\'t find a function name for - ', fn);
-    console.log('Will not profile this function.');
+    console.log('[Profiler] Couldn\'t find a function name for - ', fn);
+    console.log('[Profiler] Will not profile this function.');
     return fn;
   }
 
@@ -181,7 +181,7 @@ function profileFunction(fn, functionName) {
 
 const Profiler = {
   printProfile() {
-    console.log(Profiler.output());
+    console.log("[Profiler] " + Profiler.output());
   },
 
   emailProfile() {

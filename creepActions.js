@@ -42,15 +42,15 @@ module.exports = {
             }
 
             if (creep.memory.role != "carrier") {
-                var str = creep.pos.findClosestByPath(sources, { filter: (s) => { if (!s.pos.inRangeTo(creep.pos, 10)) {  return false } if (s.structureType == STRUCTURE_CONTAINER || s.structureType == STRUCTURE_LINK  ) { s.store.energy > creep.carryCapacity } } });//   s.store.energy > creep.carryCapacity } } });
+                var str = creep.pos.findClosestByPath(sources, { filter: (s) => { if (!s.pos.inRangeTo(creep.pos, 10)) {  return false } if (s.structureType == STRUCTURE_CONTAINER || s.structureType == STRUCTURE_LINK  ) { return s.store.energy > creep.carryCapacity } } });//   s.store.energy > creep.carryCapacity } } });
                 if (!str) {
                     str = creep.pos.findClosestByPath(sources, { filter: (s) => { if (s.structureType == STRUCTURE_CONTAINER || s.structureType == STRUCTURE_LINK) { return s.store.energy > creep.carryCapacity && (!Memory.rooms[creep.room.name].inLink || s.id != Memory.rooms[creep.room.name].inLink)} } });
                 }
             }
             else {
-                var str = creep.pos.findClosestByPath(sources, { filter: (s) => { if (!s.pos.inRangeTo(creep.pos, 5)) { return false } if (s.structureType == STRUCTURE_CONTAINER) { return s.store.energy > creep.carryCapacity } } });
+                var str = creep.pos.findClosestByPath(sources, { filter: (s) => { if (!s.pos.inRangeTo(creep.pos, 5)) { return false } if (s.structureType == STRUCTURE_CONTAINER || s.structureType == STRUCTURE_LINK) { return s.store.energy > creep.carryCapacity && (!Memory.rooms[creep.room.name].inLink || s.id != Memory.rooms[creep.room.name].inLink)} } });
                 if (!str) {
-                    str = creep.pos.findClosestByPath(sources, { filter: (s) => { if (!s.pos.inRangeTo(creep.pos, 5)) { return false } if (s.structureType == STRUCTURE_CONTAINER) { return s.store.energy > 0 } } });
+                    str = creep.pos.findClosestByPath(sources, { filter: (s) => { if (!s.pos.inRangeTo(creep.pos, 5)) { return false } if (s.structureType == STRUCTURE_CONTAINER || s.structureType == STRUCTURE_LINK) { return s.store.energy > 0 && (!Memory.rooms[creep.room.name].inLink || s.id != Memory.rooms[creep.room.name].inLink)} } });
                 }
             }
             if (str) {
@@ -58,7 +58,7 @@ module.exports = {
                 creep.memory.energyInType = "str";
             }
             else {
-                str = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, { filter: (r) => r.amount >= 0 && r.resourceType == RESOURCE_ENERGY });
+                str = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, { filter: (r) => r.amount >= creep.carryCapacity && r.resourceType == RESOURCE_ENERGY });
                 if (str) {
                     creep.memory.energyIn = str.id;
                     creep.memory.energyInType = "res";
@@ -160,7 +160,7 @@ module.exports = {
         if(Game.time % 250 == 0) this.refreshEnergySources(room)
     },
     refreshEnergySources: function (room) {
-        console.log("Refreshing energy sources for room : " + room)
+        console.log("[Actions] Refreshing energy sources for room : " + room)
 
         Memory.rooms[room.name].energy = { storages: [], sources: [] };
 

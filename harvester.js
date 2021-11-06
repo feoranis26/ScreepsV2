@@ -5,7 +5,7 @@ module.exports = {
         let energies = Memory.rooms[room.name].energySources
         let num = _.sum(Game.creeps, (c) => c.memory.role == "harvester" && c.room.name == room.name);
         let numSources = energies;
-        if (num < numSources && room.energyAvailable >= Memory.rooms[room.name].energyReq) {
+        if (num < numSources && room.energyAvailable >= Memory.rooms[room.name].energyReq * 2) {
             if (spawn.spawnCreep(require("spawning").getHarvesterBody(room.energyAvailable), require("spawning").getName(room, "HV"), { memory: { role: "harvester", target: room.name } }) == 0) {
                 return false
             }
@@ -65,7 +65,8 @@ module.exports = {
         if (!Game.getObjectById(creep.memory.container)) { creep.memory.container = undefined }
         if (creep.memory.container) {
             let cont = Game.getObjectById(creep.memory.container)
-            creep.transfer(cont, RESOURCE_ENERGY)
+            if (creep.transfer(cont, RESOURCE_ENERGY) != 0)
+                creep.memory.container = undefined;
             return
         }
         if (Game.time % 10 != 0) { return }
@@ -121,6 +122,6 @@ function visualize(creep) {
         }
     }
     catch (e) {
-        console.log("Can't visualize! Error: " + e + "\nStack: " + e.stack + "\nCreep info :\nName : " + creep.name + "\nRoom : " + creep.room.name)
+        console.log("[Creep] <" + creep.name + ">(Harvester): Can't visualize! Error: " + e + "\nStack: " + e.stack + "\nCreep info :\nName : " + creep.name + "\nRoom : " + creep.room.name)
     }
 }

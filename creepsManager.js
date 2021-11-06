@@ -37,12 +37,12 @@ module.exports = {
     },
     tick: function () {
         if (!this.codeInitialized) {
-            console.log("GLOBAL RESET!\nLag spike incoming...")
+            console.log("[MGR] GLOBAL RESET!\nLag spike incoming...")
             this.codeInitialized = true
             Memory.globalResets++
         }
         if (this.jobs.length == 0) {//|| Game.time % 10 == 0) {
-            console.log("No jobs!")
+            console.log("[MGR] No jobs!")
             this.generateJobs();
         }
 
@@ -74,7 +74,7 @@ module.exports = {
             }
         }
 
-        if (Game.time % 5 == 0) {
+        if (Game.time % 10 == 0) {
             let roomData = {
                 name: roomd,
                 roleNumbers: {
@@ -96,60 +96,67 @@ module.exports = {
 
 
 
-            let spawn;
-            if (spawns.length > 0) {
-                for (let s in spawns) {
-                    spawn = spawns[s]
-                    if (!spawn.spawning) {
-                        break
-                    }
-                }
-            }
-            else {
-                console.log("Spawn cache is invalid for room: " + roomd);
+            if (spawns.length == 0) {
+                console.log("[MGR] Spawn cache is invalid for room: " + roomd);
                 this.refreshSpawns(roomd);
             }
             if (Game.time % 500 == 0) {
-                console.log("Spawn cache is being refreshed for room: " + roomd);
+                console.log("[MGR] Spawn cache is being refreshed for room: " + roomd);
                 this.refreshSpawns(roomd);
             }
 
 
-            this.spawn(roomData, spawn)
+            this.spawn(roomData, spawns)
         }
     },
-    spawn: function (roomData, spawn) {
+    spawn: function (roomData, spawns) {
         //Cache role numbers for all roles so we don't calculate them for every job, this would save a lot of CPU
-
         let roomd = roomData.name
         let room = Game.rooms[roomd];
-        if (room.find(FIND_MY_CREEPS)[0]) {
-            if (this.jobs.length == 0) {
-                console.log("No jobs!")
-                this.generateJobs();
+
+        let spawn = spawns[0];
+        let alreadySpawning = false;
+        for (let s in spawns) {
+            let spawn_t = spawns[s]
+            if (spawn_t.spawning && Game.creeps[spawn_t.spawning] && Game.creeps[spawn_t.spawning].memory.role == spawner.name) {
+                alreadySpawning = true;
+                break;
             }
-            for (let spawnerNum in this.jobs) {
-                let spawner = this.jobs[spawnerNum]
+            if (!spawn_t.spawning) {
+                spawn = spawns[s]
+            }
+            break;
+        }
 
-
-                if (spawner.spawn(room, spawn, roomData.roleNumbers[spawner.name])) {
-                    continue;
+        if (room.find(FIND_MY_CREEPS).length > 0) {
+            if (!alreadySpawning) {
+                if (this.jobs.length == 0) {
+                    console.log("[MGR] No jobs!")
+                    this.generateJobs();
                 }
 
 
-                if (this.nextUp[roomd] != spawner.name) {
+
+                for (let spawnerNum in this.jobs) {
+                    let spawner = this.jobs[spawnerNum]
+                    let num = roomData.roleNumbers[spawner.name] != undefined ? roomData.roleNumbers[spawner.name] : 0;
+
+                    if (alreadySpawning || (spawn && spawner.spawn(room, spawn, num))) {
+                        continue;
+                    }
+
                     this.nextUp[roomd] = spawner.name
                     nextup = this.nextUp[roomd]
+                    break;
                 }
-                break;
             }
             this.isRoomDead = false;
         }
         else if (!this.isRoomDead) {
             this.isRoomDead = true;
-            console.log("No Creeps.")
+            console.log("[MGR] No Creeps.")
             Game.notify("Room died! Time:" + Game.time + ", Room: " + room)
-            console.log("Room died! Time:" + Game.time + ", Room: " + room)
+            console.log("[MGR] Room died! Time:" + Game.time + ", Room: " + room)
             rmrv.spawn(room, spawn, "dead")
         }
     },
@@ -162,8 +169,8 @@ module.exports = {
                     job.run(creep)
                 }
                 catch (e) {
-                    console.log("Exception at job " + job.name + " while running for " + creep.name + " at room " + creep.room.name + "!")
-                    console.log("Exception details: " + e + "  ##  " + e.stack)
+                    console.log("[MGR] Exception at job " + job.name + " while running for " + creep.name + " at room " + creep.room.name + "!")
+                    console.log("[MGR] Exception details: " + e + "  ##  " + e.stack)
                     Game.notify("Exception at job " + job.name + " while running for " + creep.name + "!");
                     Game.notify("Exception info: " + e + "  ##  " + e.stack + "\nCreep info :\nName : " + creep.name + "\nRoom : " + creep.room.name);
                 }
@@ -171,6 +178,7 @@ module.exports = {
         }
     },
     refreshSpawns: function (roomd) {
+        let room = Game.rooms[roomd]
         Memory.rooms[roomd].spawns = []
         let spawnsr = room.find(FIND_MY_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_SPAWN })
         for (let i in spawnsr) {
@@ -190,7 +198,7 @@ module.exports = {
         vis.rect(x, y, (1 - (progress / 1)) * 1, 0.25, { fill: "red", opacity: 1 })
     },
     generateJobs: function () {
-        console.log("Generating jobs, prepare for CPU spike!")
+        console.log("[MGR] Generating jobs.")
         this.jobs.push(carry);
         this.jobs.push(harv);
         this.jobs.push(upgr);
@@ -227,10 +235,13 @@ module.exports = {
             vis.text(spawn.spawning.name, pos.x - 3.5, pos.y + 0.25, { font: 0.25 });
             vis.rect(pos.x - 4.25, pos.y - 0.625, 2.875, 1.25, { fill: "gray", opacity: 0.125 })
         }
-        else {
+        else if(this.nextUp[spawn.room.name] != undefined) {
             vis.text("Next up:", pos.x - 3.5, pos.y - 0.125, { font: 0.25 });
             vis.text(this.nextUp[spawn.room.name], pos.x - 3.5, pos.y + 0.25, { font: 0.25 });
             vis.rect(pos.x - 4.25, pos.y - 0.625, 2.875, 1.25, { fill: "gray", opacity: 0.125 })
+        }
+        else {
+            vis.rect(pos.x - 0.625, pos.y - 0.625, 1.25, 1.25, { fill: "gray", opacity: 0.125 })
         }
 
 
