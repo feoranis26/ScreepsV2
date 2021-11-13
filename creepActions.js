@@ -114,12 +114,14 @@ module.exports = {
                     //console.log(rn)
                     let rnX = rn.substring(1, 3)
                     let rnY = rn.substring(4, 6)
+                    console.log(rnX)
+                    console.log(rnY)
                     if (!
                         (rnX % 10 == 0 ||
                             rnY % 10 == 0 ||
                             rn == roomName ||
                             rn == creep.room.name ||
-                            Game.rooms[rn] != undefined
+                            Game.rooms[rn] == undefined
                         )) {
                         return Infinity
                     }
@@ -135,11 +137,17 @@ module.exports = {
         else {
             try {
                 if (creep.room.name != creep.memory.path[creep.memory.lastRoomIndex].room) {
-                    creep.moveTo(creep.pos.findClosestByPath(creep.memory.path[creep.memory.lastRoomIndex].exit))
+                    if (!creep.memory.exit) {
+                        creep.memory.exit = creep.pos.findClosestByPath(creep.memory.path[creep.memory.lastRoomIndex].exit)
+                        console.log(creep.memory.exit)
+                    }
+                    
+                    creep.moveTo(creep.memory.exit.x, creep.memory.exit.y)
                 }
                 else {
                     creep.memory.lastRoomIndex++
                     creep.memory.lastRoomName = creep.room.name
+                    creep.memory.exit = undefined;
                     //creep.moveTo(new RoomPosition(25, 25, creep.room.name))
                     creep.moveTo(creep.pos.findClosestByPath(creep.memory.path[creep.memory.lastRoomIndex].exit))
                 }

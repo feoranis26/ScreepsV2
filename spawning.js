@@ -122,12 +122,12 @@ module.exports = {
         if (energy > maxEnergy) {
             energy = maxEnergy
         }
-        let numparts = Math.floor(energy / 500)
+        let numparts = Math.floor(energy / 550)
         let body = [];
         for (let i = 0; i < numparts * 2; i++) {
             body.push(WORK);
         }
-        for (let i = 0; i < numparts * 2; i++) {
+        for (let i = 0; i < numparts * 3; i++) {
             body.push(CARRY);
         }
         for (let i = 0; i < numparts * 3; i++) {

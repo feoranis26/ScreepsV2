@@ -1,11 +1,11 @@
 module.exports = {
     name: "harvester"
     ,
-    spawn: function (room, spawn) {
+    spawn: function (room, spawn, num) {
         let energies = Memory.rooms[room.name].energySources
-        let num = _.sum(Game.creeps, (c) => c.memory.role == "harvester" && c.room.name == room.name);
+        //let num = _.sum(Game.creeps, (c) => c.memory.role == "harvester" && c.room.name == room.name);
         let numSources = energies;
-        if (num < numSources && room.energyAvailable >= Memory.rooms[room.name].energyReq * 2) {
+        if (num < numSources && room.energyAvailable >= Memory.rooms[room.name].energyReq * (_.sum(Game.creeps, (c) => c.room.name == room.name) > 2 ? 2 : 1)) {
             if (spawn.spawnCreep(require("spawning").getHarvesterBody(room.energyAvailable), require("spawning").getName(room, "HV"), { memory: { role: "harvester", target: room.name } }) == 0) {
                 return false
             }

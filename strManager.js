@@ -4,14 +4,10 @@ module.exports = {
         this.processLinks(room)
     },
     processLinks: function (room) {
-        if(Game.time % 10 != 0) return  
-        let links = room.find(FIND_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_LINK });
-        if (links.length == 0) {
-            return;
-        }
         let outLink = Game.getObjectById(Memory.rooms[room.name].outLink)
         let inLink = Game.getObjectById(Memory.rooms[room.name].inLink)
-        if(!outLink || !inLink) return
+        if (!outLink || !inLink) return
+        room.visual.line(inLink.pos, outLink.pos, { color: "yellow", width: 0.25, opacity: 0.5 })
         inLink.transferEnergy(outLink)
     },
     processPower: function (room) {

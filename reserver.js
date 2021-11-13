@@ -9,7 +9,7 @@ module.exports = {
         let num = _.sum(Game.creeps, (c) => c.memory.role == "reserver")// && c.room.name == Memory.claimRoom && !c.memory.deactivated);
         let numSources = Memory.rooms[room.name].reservation.length;
         if (num < numSources) {
-            spawn.spawnCreep([CLAIM, CLAIM, MOVE], this.hash((Math.floor(Math.random() * 10000).toString())) + "_RS", { memory: { role: "reserver", home: room.name } })
+            spawn.spawnCreep([CLAIM, CLAIM, MOVE, MOVE], this.hash((Math.floor(Math.random() * 10000).toString())) + "_RS", { memory: { role: "reserver", home: room.name } })
             return false
         }
         else {
@@ -18,10 +18,11 @@ module.exports = {
     },
     run: function (creep) {
         if (!creep.memory.room) {
-            for (let roomn in Memory.rooms[creep.room.name].reservation) {
-                let creeps = _.sum(Game.creeps, (c) => c.memory.role == "reserver" && c.memory.room == roomn)
+            for (let roomn in Memory.rooms[creep.memory.home].reservation) {
+                let roomname = Memory.rooms[creep.memory.home].reservation[roomn]
+                let creeps = _.sum(Game.creeps, (c) => c.memory.role == "reserver" && c.memory.room == roomname)
                 if (creeps == 0) {
-                    creep.memory.room = Memory.rooms[creep.room.name].reservation[roomn];
+                    creep.memory.room = roomname;
                 }
             }
         }
@@ -40,13 +41,20 @@ module.exports = {
             }
             else {
                 let str = creep.room.controller//, { filter: (s) => s.structureType == STRUCTURE_SPAWN })
-                creep.reserveController(str)
-                creep.moveTo(str)
+                if (creep.reserveController(str) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(str)
+                    let path = Room.deserializePath(creep.memory._move.path);
+                    creep.room.visual.poly(path, { stroke: "purple", lineStyle: 'dashed', opacity: 0.1 });
+                }
             }
         }
         else {
             exit = creep.pos.findClosestByRange(creep.room.findExitTo(creep.memory.home));
             creep.moveTo(exit)
+            if (creep.memory._move) {
+                let path = Room.deserializePath(creep.memory._move.path);
+                creep.room.visual.poly(path, { stroke: "purple", lineStyle: 'dashed', opacity: 0.1 });
+            }
         }
     }, hash: function (b) { for (var a = 0, c = b.length; c--;)a += b.charCodeAt(c), a += a << 10, a ^= a >> 6; a += a << 3; a ^= a >> 11; return ((a + (a << 15) & 4294967295) >>> 0).toString(16) }
 

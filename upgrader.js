@@ -59,6 +59,8 @@ module.exports = {
                 if (creep.memory.outId) {
                     if (creep.upgradeController(Game.getObjectById(creep.memory.outId)) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(Game.getObjectById(creep.memory.outId));
+                        let path = Room.deserializePath(creep.memory._move.path);
+                        creep.room.visual.poly(path, { stroke: "orange", lineStyle: 'dashed', opacity: 0.1 });
                     }
                     this.sign(creep)
                     if (creep.carry.energy == 0) {

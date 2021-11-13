@@ -8,7 +8,7 @@ module.exports = {
         let num = _.sum(Game.creeps, (c) => c.memory.role == this.name && c.memory.home == room.name);
         let numSources = this.amount * Memory.rooms[room.name].ldsEnabled;
         if (num < numSources && room.energyAvailable >= Memory.rooms[room.name].energyReq * 3) {
-            if (spawn.spawnCreep(spawning.getLongHarvesterBody(room.energyAvailable), spawning.getName(room, this.suffix), { memory: { role: this.name, home: room.name, trips: 0 } }) == 0) {
+            if (spawn.spawnCreep(spawning.getLongHarvesterBody(room.energyAvailable), spawning.getName(room, this.suffix), { memory: { energyCost: room.energyAvailable < 2400 ? room.energyAvailable : 2400, role: this.name, home: room.name, trips: 0 } }) == 0) {
                 return false
             }
         }
@@ -26,7 +26,7 @@ module.exports = {
         if (!creep.memory.trips) { creep.memory.trips = 0; }
 
         if (creep.memory.target) {
-
+            this.visualizeCreep(creep);
             this.shouldFlee(creep)
 
             if (creep.carry.energy == 0) { creep.memory.returning = false }
@@ -135,7 +135,7 @@ module.exports = {
                         Memory.actions.lds[room].splice(j, 1);
                     }
                 }
-                if (usedRooms[room].length < 3) {
+                if (usedRooms[room].length < 4) {
                     creep.memory.target = room
                     if (!usedRooms[room].includes(creep.id)) {
                         usedRooms[room].push(creep.id)
@@ -240,8 +240,8 @@ module.exports = {
                 str = Game.getObjectById(creep.memory.build)
                 if (!str)
                     creep.memory.build = undefined
-                creep.build(str);
-                creep.moveTo(str);
+                if (creep.build(str) == ERR_NOT_IN_RANGE)
+                    creep.moveTo(str);
             }
         }
         else {
@@ -303,15 +303,25 @@ module.exports = {
             v.circle(rp(25, 25, hr), { radius: 12, strokeWidth: 0, fill: "#c9f02e" })
         }
     },
+    visualizeCreep: function (creep) {
+        if (creep.memory.energyCost <= creep.memory.trips * creep.carryCapacity) {
+            creep.room.visual.circle(creep.pos, { fill: "green", opacity: 0.2, radius: 0.625 })
+        }
+        else {
+            creep.room.visual.circle(creep.pos, { fill: "red", opacity: 0.2, radius: 0.625 })
+        }
+
+        //let path = Room.deserializePath(creep.memory._move.path);
+        //creep.room.visual.poly(path, { stroke: "blue", lineStyle: 'dashed', opacity: 0.25 });
+    },
     observe: function (room) {
         let n = room.name;
-        if (Memory.rooms[n].ldsEnabled) {
-            for (let i in Memory.actions.ldsDangerous && Game.time % 20 < 3) {
+        if (Memory.rooms[n].ldsEnabled && Game.time % 20 < 3) {
+            for (let i in Memory.actions.ldsDangerous) {
                 if (!Game.rooms[i]) {
                     let observers = Game.rooms[n].find(FIND_MY_STRUCTURES, { filter: (s) => s.structureType == STRUCTURE_OBSERVER })
                     if (observers.length >= 1) {
                         observers[0].observeRoom(i)
-                        console.log("observing" + i)
                     }
                 }
                 else {

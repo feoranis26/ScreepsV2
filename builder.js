@@ -6,7 +6,7 @@ module.exports = {
         //let num = _.sum(Game.creeps, (c) => c.memory.role == "builder" && c.memory.home == room.name);
         let numSources = 1;
         if (num < numSources && room.energyAvailable >= Memory.rooms[room.name].energyReq) {
-            if (spawn.spawnCreep(require("spawning").getSpawnCreepBody(room.energyAvailable), require("spawning").getName(room, "BL"), { memory: { role: "builder", target: room.name, home: room.name } }) == 0) {
+            if (spawn.spawnCreep(require("spawning").getSpawnCreepBody(room.energyAvailable, 400), require("spawning").getName(room, "BL"), { memory: { role: "builder", target: room.name, home: room.name } }) == 0) {
                 return false
             }
         }

@@ -60,13 +60,13 @@ module.exports = {
                         }
                         else {
                             creep.memory.str = undefined;
-                        }/*
+                        }
                         if (target && creep.memory._move.path) {
                             let path = Room.deserializePath(creep.memory._move.path);
-                            creep.room.visual.poly(path, { stroke: "red", lineStyle: 'dotted', opacity: 0.1 });
+                            creep.room.visual.poly(path, { stroke: "yellow", lineStyle: 'dotted', opacity: 0.1 });
                             creep.room.visual.circle(target.pos, { radius: 0.5, fill: 'transparent', strokeWidth: 0.1, stroke: "lightblue" })
                             creep.room.visual.text("🏗", target.pos.x, target.pos.y + 1);
-                        }*/
+                        }
                         if (creep.carry.energy == 0) {
                             creep.memory.outId = undefined;
                             creep.memory.state = "gettingEnergy";

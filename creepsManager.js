@@ -211,7 +211,7 @@ module.exports = {
         ////this.jobs.push(clrf);
         this.jobs.push(heal);
         this.jobs.push(rmrs);
-        //this.jobs.push(rsrc);
+        this.jobs.push(rsrc);
         this.jobs.push(mnfc);
         this.jobs.push(pwpr);
         this.jobs.push(rmrv);
