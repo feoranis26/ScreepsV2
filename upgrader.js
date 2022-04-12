@@ -13,7 +13,7 @@ module.exports = {
                 maxEnergy = room.energyCapacityAvailable / 1
             }
             energyReq = room.energyCapacityAvailable / 1.25;
-            numSources = 1;
+            numSources = 2;
         }
         if (maxEnergy > 2400) {
             maxEnergy = 2400;

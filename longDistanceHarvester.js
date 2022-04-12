@@ -7,6 +7,10 @@ module.exports = {
     spawn: function (room, spawn) {
         let num = _.sum(Game.creeps, (c) => c.memory.role == this.name && c.memory.home == room.name);
         let numSources = this.amount * Memory.rooms[room.name].ldsEnabled;
+
+        if (Memory.rooms[room.name].ldsAmount)
+            numSources = Memory.rooms[room.name].ldsAmount
+        
         if (num < numSources && room.energyAvailable >= Memory.rooms[room.name].energyReq * 3) {
             if (spawn.spawnCreep(spawning.getLongHarvesterBody(room.energyAvailable), spawning.getName(room, this.suffix), { memory: { energyCost: room.energyAvailable < 2400 ? room.energyAvailable : 2400, role: this.name, home: room.name, trips: 0 } }) == 0) {
                 return false
@@ -32,10 +36,18 @@ module.exports = {
             if (creep.carry.energy == 0) { creep.memory.returning = false }
             if (creep.carry.energy == creep.carryCapacity && !creep.memory.returning) { creep.memory.returning = true; creep.memory.trips++ }
 
-            if (!creep.memory.returning && !creep.memory.run) {
+            let sourceEmpty = false;
+            if (creep.memory.source != undefined) {
+                let source = Game.getObjectById(creep.memory.source);
+                if (source && source.energy == 0 && source.ticksToRegeneration > 50) {
+                    sourceEmpty = true;
+                }
+            }
+
+            if (!creep.memory.returning && !creep.memory.run && (!sourceEmpty || Memory.actions.ldsMaintain[creep.room.name] == creep.id)) {
                 this.goHarvest(creep)
             }
-            else if (Memory.actions.ldsMaintain[creep.room.name] == creep.id && !creep.memory.run) {
+            else if (Memory.actions.ldsMaintain[creep.room.name] == creep.id && !creep.memory.run && !sourceEmpty) {
                 this.maintain(creep);
             }
             else {
@@ -66,7 +78,8 @@ module.exports = {
         else {
             if (Game.time % 5 != 0 && creep.room.name == creep.memory.target) {
                 let hostiles = creep.room.find(FIND_HOSTILE_CREEPS);
-                if (hostiles.length > 0) {
+                let hostileStrs = creep.room.find(FIND_HOSTILE_STRUCTURES);
+                if (hostiles.length > 0 || hostileStrs.length > 0) {
                     Memory.actions.ldsDangerous[creep.memory.target] = true;
                 }
                 else {
@@ -77,7 +90,7 @@ module.exports = {
                 creep.memory.target = undefined
             }
             this.findSource(creep);
-            if (creep.memory.source) {
+            if (creep.memory.source != undefined) {
                 let source = Game.getObjectById(creep.memory.source);
                 if (!source) {
                     creep.memory.source = undefined
@@ -195,7 +208,11 @@ module.exports = {
             let room = Game.rooms[Memory.rooms[srcRoom.name].lds[ldsRN]]
             if (!room)
                 continue;
-            if (Game.time % 25 != 0 || Memory.actions.lds[room.name] == undefined) { return; }
+            if (Game.time % 25 != 0 || Memory.actions.lds[room.name] == undefined) { continue; }
+
+            if (Memory.actions.ldsMaintain[room.name] == "disabled")
+                continue;
+            
             let maintainer = Game.getObjectById(Memory.actions.ldsMaintain[room.name])
             if (!maintainer || maintainer == null) {
                 console.log("[Role] \"" + this.name + "\" : No maintainer for room: " + room.name)
@@ -278,7 +295,7 @@ module.exports = {
     },
     findSource: function (creep) {
         if (creep.memory.source && Game.getObjectById(creep.memory.source) && Game.getObjectById(creep.memory.source).room.name == creep.memory.target) { return }
-        let source = creep.pos.findClosestByPath(FIND_SOURCES, { filter: (s) => s.energy > 0 })
+        let source = creep.pos.findClosestByPath(FIND_SOURCES, { filter: (s) => s.energy > 0 && s.room.name == creep.room.name })
         if (source) {
             creep.memory.source = source.id
         }
@@ -326,7 +343,8 @@ module.exports = {
                 }
                 else {
                     let hostiles = Game.rooms[i].find(FIND_HOSTILE_CREEPS, { filter: (c) => c.room.name == i });
-                    if (hostiles.length == 0) {
+                    let hostileStrs = Game.rooms[i].find(FIND_HOSTILE_STRUCTURES, { filter: (s) => s.room.name == i });
+                    if (hostiles.length == 0 && hostileStrs.length == 0) {
                         Memory.actions.ldsDangerous[i] = false;
                     }
                 }

@@ -24,8 +24,8 @@ module.exports = {
             }
 
             this.processOwn(n)
-            this.updateClaimRoom()
         }
+        this.updateClaimRoom()
 
     },
     processOwn: function (n) {

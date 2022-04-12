@@ -6,7 +6,7 @@ module.exports = {
     spawn: function (room, spawn) {
         let num = _.sum(Game.creeps, (c) => c.memory.role == "resource" && c.memory.home == room.name)// && c.room.name == Memory.claimRoom && !c.memory.deactivated);
         let numSources = Memory.rhv[room.name] != null ? 1 : 0// = Memory.reserveRoom.length;
-        if (num < numSources && room.energyAvailable >= Memory.rooms[room.name].energyReq) {
+        if (num < numSources && room.energyAvailable >= Memory.rooms[room.name].energyReq * 4) {
             if (spawn.spawnCreep(spawning.getSpawnCreepBody(room.energyAvailable, 3200), spawning.getName(room, "RS"), { memory: { role: "resource" , target: Memory.rhv[room.name].target, home : room.name, resource : RESOURCE_METAL} }) == 0) {
                 return true
             }
@@ -22,7 +22,7 @@ module.exports = {
                 creep.memory.state = "mining";
                 break;
             case "mining":
-                if (creep.store[creep.memory.resource] == creep.store.getCapacity(creep.memory.resource) || creep.ticksToLive < 250) creep.memory.state = "return"
+                if (creep.store[creep.memory.resource] == creep.store.getCapacity(creep.memory.resource) || creep.ticksToLive < 350) creep.memory.state = "return"
                 if (creep.room.name != creep.memory.target) {
                     creepActions.moveToRoomUsingHighways(creep, creep.memory.target)
                 }

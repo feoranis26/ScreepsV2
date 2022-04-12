@@ -35,18 +35,19 @@ module.exports = {
             for (let hostile_creep in hostile_creeps) {
                 //if (Memory.defense[roomdat].attackedCreeps[hostile_creeps[hostile_creep].id] == undefined || Memory.defense[tower.room.name].attackedCreeps[hostile_creeps[hostile_creep].id] == tower.id) {
 
-                let body = hostile_creeps[hostile_creep].body;
+                /*let body = hostile_creeps[hostile_creep].body;
                 let hasAttackPart = false;
                 for (let partName in body) {
                     if (body[partName].type == ATTACK || body[partName].type == RANGED_ATTACK) {
                         hasAttackPart = true;
                     }
                 }
-                if (hasAttackPart) {
+                if (hasAttackPart) {*/
                     Memory.defense[tower.room.name].attackedCreeps[hostile_creeps[hostile_creep].id] = tower.id
                     Memory.defense[tower.room.name].towersAttacking[tower.id] = hostile_creeps[hostile_creep].id;
                     break;
-                }
+                //}
+
                 //}
             }
             //}

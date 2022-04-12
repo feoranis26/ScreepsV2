@@ -3,11 +3,18 @@ let cfx = require("creepActions")
 module.exports = {
     name: "melee"
     ,
-    spawn: function (room, spawn, num) {
-        if (!Memory.rooms[room.name].squad || Memory.rooms[room.name].squad.targetMelee == 0) return true
+    spawn: function (room, spawn) {
+        let ldsNeedsSupport = false;
+        for (let room2 in Memory.actions.ldsDangerous) {
+            if (Memory.actions.ldsDangerous[room2] && Memory.rooms[room.name] && Memory.rooms[room.name].lds && Memory.rooms[room.name].lds.includes(room2)) {
+                ldsNeedsSupport = true;
+            }
+        }
 
-        //let num = _.sum(Game.creeps, (c) => c.memory.role == "melee" && c.room.name == room.name);
-        let numSources = Memory.rooms[room.name].squad.targetMelee;
+        if (!Memory.rooms[room.name].squad || Memory.rooms[room.name].squad.targetMelee == 0) return !ldsNeedsSupport
+
+        let num = _.sum(Game.creeps, (c) => c.memory.role == "melee" && c.home.name == room.name);
+        let numSources = Memory.rooms[room.name].squad.targetMelee + ldsNeedsSupport ? 0 : 1;
 
         let energyReq = Memory.rooms[room.name].energyReq * 3
 
