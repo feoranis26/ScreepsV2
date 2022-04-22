@@ -96,8 +96,9 @@ function visualize(creep) {
         var pos
         var source
         try {
-            pos = creep.pos.findInRange(FIND_SOURCES, 1)[0].pos;
-            source = creep.pos.findInRange(FIND_SOURCES, 1)[0];
+            let src = Game.getObjectById(creep.memory.sourceId);
+            pos = src.pos;
+            source = src;
         }
         catch {
             return
@@ -113,7 +114,7 @@ function visualize(creep) {
 
 
             //container visuals
-            source = creep.pos.findInRange(FIND_STRUCTURES, 1, { filter: (s) => s.structureType == STRUCTURE_CONTAINER })[0];
+            source = Game.getObjectById(creep.memory.container);
             if (source) {
                 room.text("Store: ", pos.x + 1, pos.y + 0.875, { font: 0.25 });
                 room.rect(pos.x + 0.5, pos.y + 1.125, 1, 0.25, { fill: "red" });

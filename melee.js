@@ -73,9 +73,6 @@ module.exports = {
         }
     },
     doAttack: function (creep) {
-        let hostile = creep.room.find(FIND_HOSTILE_CREEPS)
-        if (hostile.length == 0)
-            return;
         let creepTarget = Game.getObjectById(creep.memory.target)
         //console.log(creepTarget)
         this.getTarget(creep)
@@ -97,7 +94,10 @@ module.exports = {
         let hostile = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS, { filter: (c) => c.room.name == creep.memory.home })
         if (hostile) {
             creep.memory.target = hostile.id
+            return
         }
+        
+        //hostile = creep.pos.findClosestByPath(FIND_STRUCTURES, { filter: (c) => c.room.name == creep.memory.home })
     }, hash: function (b) { for (var a = 0, c = b.length; c--;)a += b.charCodeAt(c), a += a << 10, a ^= a >> 6; a += a << 3; a ^= a >> 11; return ((a + (a << 15) & 4294967295) >>> 0).toString(16) },
     getPatrol: function (creep) {
         if (!creep.memory.patrol) {

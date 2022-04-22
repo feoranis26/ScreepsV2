@@ -68,8 +68,8 @@ module.exports = {
         let spawns = []
         for (let i in spawnst) {
             let spawn = Game.getObjectById(spawnst[i])
-            this.visualize(spawn);
             if (spawn) {
+                this.visualize(spawn);
                 spawns.push(spawn)
             }
         }
@@ -128,6 +128,8 @@ module.exports = {
             break;
         }
 
+        console.log(room.name)
+
         if (room.find(FIND_MY_CREEPS).length > 0) {
             if (!alreadySpawning) {
                 if (this.jobs.length == 0) {
@@ -152,7 +154,7 @@ module.exports = {
             }
             this.isRoomDead = false;
         }
-        else if (!this.isRoomDead) {
+        else {
             this.isRoomDead = true;
             console.log("[MGR] No Creeps.")
             Game.notify("Room died! Time:" + Game.time + ", Room: " + room)
@@ -235,7 +237,7 @@ module.exports = {
             vis.text(spawn.spawning.name, pos.x - 3.5, pos.y + 0.25, { font: 0.25 });
             vis.rect(pos.x - 4.25, pos.y - 0.625, 2.875, 1.25, { fill: "gray", opacity: 0.125 })
         }
-        else if(this.nextUp[spawn.room.name] != undefined) {
+        else if (this.nextUp[spawn.room.name] != undefined) {
             vis.text("Next up:", pos.x - 3.5, pos.y - 0.125, { font: 0.25 });
             vis.text(this.nextUp[spawn.room.name], pos.x - 3.5, pos.y + 0.25, { font: 0.25 });
             vis.rect(pos.x - 4.25, pos.y - 0.625, 2.875, 1.25, { fill: "gray", opacity: 0.125 })
